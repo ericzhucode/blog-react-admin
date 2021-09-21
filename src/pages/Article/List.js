@@ -1,7 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
-import domain from '@/utils/domain.js';
 import {
   Row,
   Col,
@@ -17,6 +16,7 @@ import {
   Select,
   Avatar,
 } from 'antd';
+import domain from '@/utils/domain';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import ArticleComponent from './ArticleComponent';
 import CommentsComponent from './CommentsComponent';
@@ -34,7 +34,7 @@ class TableList extends PureComponent {
     this.state = {
       changeType: false,
       title: '',
-      author: 'biaochenxuying',
+      author: 'Eric Shu',
       keyword: '',
       content: '',
       desc: '',
@@ -235,136 +235,32 @@ class TableList extends PureComponent {
     this.handleSearch(this.state.pageNum, this.state.pageSize);
   }
 
-  handleSubmit() {
+  handleDelete = (text, record) => {
     const { dispatch } = this.props;
-    const { articleDetail } = this.props.article;
-    if (!this.state.title) {
-      notification.error({
-        message: '文章标题不能为空',
+    const params = {
+      id: record._id,
+    };
+    new Promise(resolve => {
+      dispatch({
+        type: 'article/delArticle',
+        payload: {
+          resolve,
+          params,
+        },
       });
-      return;
-    }
-    if (!this.state.keyword) {
-      notification.error({
-        message: '文章关键字不能为空',
-      });
-      return;
-    }
-    if (!this.state.content) {
-      notification.error({
-        message: '文章内容不能为空',
-      });
-      return;
-    }
-    if (keyword instanceof Array) {
-      keyword = keyword.join(',');
-    }
-    this.setState({
-      loading: true,
-    });
-
-    let keyword = this.state.keyword;
-    if (keyword instanceof Array) {
-      keyword = keyword.join(',');
-    }
-    if (this.state.changeType) {
-      const params = {
-        id: articleDetail._id,
-        title: this.state.title,
-        author: this.state.author,
-        desc: this.state.desc,
-        keyword,
-        content: this.state.content,
-        img_url: this.state.img_url,
-        origin: this.state.origin,
-        state: this.state.state,
-        type: this.state.type,
-        tags: this.state.tags,
-        category: this.state.category,
-      };
-      new Promise(resolve => {
-        dispatch({
-          type: 'article/updateArticle',
-          payload: {
-            resolve,
-            params,
-          },
+    }).then(res => {
+      if (res.code === 0) {
+        notification.success({
+          message: res.message,
         });
-      }).then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: res.message,
-          });
-          this.setState({
-            visible: false,
-            changeType: false,
-            title: '',
-            author: 'biaochenxuying',
-            keyword: '',
-            content: '',
-            desc: '',
-            img_url: '',
-            origin: 0, // 0 原创，1 转载，2 混合
-            state: 1, // 文章发布状态 => 0 草稿，1 已发布
-            type: 1, // 文章类型 => 1: 普通文章，2: 简历，3: 管理员介绍
-            tags: '',
-            category: '',
-            tagsDefault: [],
-            categoryDefault: [],
-          });
-          this.handleSearch(this.state.pageNum, this.state.pageSize);
-        } else {
-          notification.error({
-            message: res.message,
-          });
-        }
-      });
-    } else {
-      const params = {
-        title: this.state.title,
-        author: this.state.author,
-        desc: this.state.desc,
-        keyword: this.state.keyword,
-        content: this.state.content,
-        img_url: this.state.img_url,
-        origin: this.state.origin,
-        state: this.state.state,
-        type: this.state.type,
-        tags: this.state.tags,
-        category: this.state.category,
-      };
-      new Promise(resolve => {
-        dispatch({
-          type: 'article/addArticle',
-          payload: {
-            resolve,
-            params,
-          },
+        this.handleSearch(this.state.pageNum, this.state.pageSize);
+      } else {
+        notification.error({
+          message: res.message,
         });
-      }).then(res => {
-        if (res.code === 0) {
-          notification.success({
-            message: res.message,
-          });
-          this.setState({
-            visible: false,
-            chnageType: false,
-          });
-          this.handleSearch(this.state.pageNum, this.state.pageSize);
-        } else {
-          notification.error({
-            message: res.message,
-          });
-        }
-      });
-    }
-  }
-
-  handleChange(event) {
-    this.setState({
-      title: event.target.value,
+      }
     });
-  }
+  };
 
   handleChangeAuthor(event) {
     this.setState({
@@ -534,8 +430,6 @@ class TableList extends PureComponent {
           }
         }
         const category = categoryArr.length ? categoryArr.join() : '';
-        console.log('tagsArr :', tagsArr);
-        console.log('categoryArr :', categoryArr);
         if (res.code === 0) {
           this.setState({
             visible: true,
@@ -547,6 +441,7 @@ class TableList extends PureComponent {
             keyword: res.data.keyword,
             desc: res.data.desc,
             img_url: res.data.img_url,
+            type: res.data.type,
             origin: res.data.origin, // 0 原创，1 转载，2 混合
             tags,
             category,
@@ -564,7 +459,7 @@ class TableList extends PureComponent {
         visible: true,
         changeType: false,
         title: '',
-        author: 'biaochenxuying',
+        author: 'Eric Shu',
         keyword: '',
         content: '',
         desc: '',
@@ -582,12 +477,13 @@ class TableList extends PureComponent {
     this.handleSubmit();
   };
 
-  handleCancel = e => {
+  handleCancel = () => {
     this.setState({
       visible: false,
     });
   };
-  handleCommentsCancel = e => {
+
+  handleCommentsCancel = () => {
     this.setState({
       commentsVisible: false,
     });
@@ -626,35 +522,136 @@ class TableList extends PureComponent {
     });
   };
 
-  handleDelete = (text, record) => {
-    // console.log('text :', text);
-    // console.log('record :', record);
-    const { dispatch } = this.props;
-    const params = {
-      id: record._id,
-    };
-    new Promise(resolve => {
-      dispatch({
-        type: 'article/delArticle',
-        payload: {
-          resolve,
-          params,
-        },
-      });
-    }).then(res => {
-      // console.log('res :', res);
-      if (res.code === 0) {
-        notification.success({
-          message: res.message,
-        });
-        this.handleSearch(this.state.pageNum, this.state.pageSize);
-      } else {
-        notification.error({
-          message: res.message,
-        });
-      }
+  handleChange(event) {
+    this.setState({
+      title: event.target.value,
     });
-  };
+  }
+
+  handleSubmit() {
+    const { dispatch } = this.props;
+    const { articleDetail } = this.props.article;
+
+    if (!this.state.title) {
+      notification.error({
+        message: '文章标题不能为空',
+      });
+      return;
+    }
+    if (!this.state.keyword) {
+      notification.error({
+        message: '文章关键字不能为空',
+      });
+      return;
+    }
+    if (!this.state.content) {
+      notification.error({
+        message: '文章内容不能为空',
+      });
+      return;
+    }
+
+    this.setState({
+      loading: true,
+    });
+
+    let { keyword } = this.state;
+    if (keyword instanceof Array) {
+      keyword = keyword.join(',');
+    }
+
+    if (this.state.changeType) {
+      const params = {
+        id: articleDetail._id,
+        title: this.state.title,
+        author: this.state.author,
+        desc: this.state.desc,
+        keyword,
+        content: this.state.content,
+        img_url: this.state.img_url,
+        origin: this.state.origin,
+        state: this.state.state,
+        type: this.state.type,
+        tags: this.state.tags,
+        category: this.state.category,
+      };
+      new Promise(resolve => {
+        dispatch({
+          type: 'article/updateArticle',
+          payload: {
+            resolve,
+            params,
+          },
+        });
+      }).then(res => {
+        if (res.code === 0) {
+          notification.success({
+            message: res.message,
+          });
+          this.setState({
+            visible: false,
+            changeType: false,
+            title: '',
+            author: 'Eric Shu',
+            keyword: '',
+            content: '',
+            desc: '',
+            img_url: '',
+            origin: 0, // 0 原创，1 转载，2 混合
+            state: 1, // 文章发布状态 => 0 草稿，1 已发布
+            type: 1, // 文章类型 => 1: 普通文章，2: 简历，3: 管理员介绍
+            tags: '',
+            category: '',
+            tagsDefault: [],
+            categoryDefault: [],
+          });
+          this.handleSearch(this.state.pageNum, this.state.pageSize);
+        } else {
+          notification.error({
+            message: res.message,
+          });
+        }
+      });
+    } else {
+      const params = {
+        title: this.state.title,
+        author: this.state.author,
+        desc: this.state.desc,
+        keyword: this.state.keyword,
+        content: this.state.content,
+        img_url: this.state.img_url,
+        origin: this.state.origin,
+        state: this.state.state,
+        type: this.state.type,
+        tags: this.state.tags,
+        category: this.state.category,
+      };
+      new Promise(resolve => {
+        dispatch({
+          type: 'article/addArticle',
+          payload: {
+            resolve,
+            params,
+          },
+        });
+      }).then(res => {
+        if (res.code === 0) {
+          notification.success({
+            message: res.message,
+          });
+          this.setState({
+            visible: false,
+            changeType: false,
+          });
+          this.handleSearch(this.state.pageNum, this.state.pageSize);
+        } else {
+          notification.error({
+            message: res.message,
+          });
+        }
+      });
+    }
+  }
 
   renderSimpleForm() {
     return (

@@ -114,14 +114,25 @@ class ArticleComponent extends React.Component {
     const { changeType } = this.props;
     let originDefault = '原创';
     let stateDefault = '发布'; // 文章发布状态 => 0 草稿，1 发布
-    let typeDefault = '普通文章'; // 文章类型 => 1: 普通文章，2: 简历，3: 管理员介绍
+    let typeDefault = ''; // 文章类型 => 1: 普通文章，2: 简历，3: 管理员介绍
     let categoryDefault = [];
     let tagsDefault = [];
+    switch (articleDetail.type) {
+      case 1:
+        typeDefault = '普通文章';
+        break;
+      case 2:
+        typeDefault = '简历';
+        break;
+      case 3:
+        typeDefault = '管理员介绍';
+        break;
+      default:
+        typeDefault = '普通文章';
+    }
     if (changeType) {
       originDefault = articleDetail.origin === 0 ? '原创' : '';
       stateDefault = articleDetail.state ? '已发布' : '草稿';
-      typeDefault =
-        articleDetail.type === 1 ? '普通文章' : articleDetail.type === 2 ? '简历' : '管理员介绍';
       categoryDefault = this.props.categoryDefault;
       tagsDefault = this.props.tagsDefault;
     } else {
@@ -130,10 +141,6 @@ class ArticleComponent extends React.Component {
       categoryDefault = [];
       tagsDefault = [];
     }
-    // console.log('originDefault :', originDefault)
-    // console.log('stateDefault :', stateDefault)
-    // console.log('categoryDefault :', categoryDefault)
-    // console.log('tagsDefault :', tagsDefault)
     const { TextArea } = Input;
     const normalCenter = {
       textAlign: 'center',
@@ -208,6 +215,7 @@ class ArticleComponent extends React.Component {
           <Select
             style={{ width: 200, marginTop: 20, marginBottom: 20 }}
             placeholder="选择文章类型"
+            key={typeDefault}
             defaultValue={typeDefault}
             onChange={this.props.handleChangeType}
           >

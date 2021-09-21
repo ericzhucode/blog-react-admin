@@ -11,7 +11,7 @@ import { enquireScreen, unenquireScreen } from 'enquire-js';
 import { formatMessage } from 'umi/locale';
 import SiderMenu from '@/components/SiderMenu';
 import Authorized from '@/utils/Authorized';
-import SettingDrawer from '@/components/SettingDrawer';
+import SettingDrawer from '../components/SettingDrawer';
 import logo from '../assets/logo.svg';
 // import logo from '../assets/all.png';
 import Footer from './Footer';

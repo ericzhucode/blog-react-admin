@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Layout, Icon } from 'antd';
-import GlobalFooter from '@/components/GlobalFooter';
+import GlobalFooter from '../components/GlobalFooter';
 
 const { Footer } = Layout;
 const FooterView = () => (
@@ -10,13 +10,13 @@ const FooterView = () => (
         {
           key: 'Pro 首页',
           title: 'Pro 首页',
-          href: 'https://github.com/biaochenxuying/blog-react',
+          href: 'https://github.com/Eric Shu/blog-react',
           blankTarget: true,
         },
         {
           key: 'github',
           title: <Icon type="github" />,
-          href: 'https://github.com/biaochenxuying/blog-react-admin',
+          href: 'https://github.com/Eric Shu/blog-react-admin',
           blankTarget: true,
         },
         {
@@ -28,7 +28,7 @@ const FooterView = () => (
       ]}
       copyright={
         <Fragment>
-          Copyright <Icon type="copyright" /> BiaoChenXuYing
+          Copyright <Icon type="copyright" /> Eric Shu
         </Fragment>
       }
     />
